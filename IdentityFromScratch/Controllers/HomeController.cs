@@ -46,6 +46,7 @@ namespace IdentityFromScratch.Controllers
                 //user.Firstname = "Super";
                 //user.Lastname = "Admin";
                 //await manager.UpdateAsync(user);
+
                 var passwordHasher = new PasswordHasher();
 
                 var result = await signInManager.PasswordSignInAsync(user.UserName, password, true, false);

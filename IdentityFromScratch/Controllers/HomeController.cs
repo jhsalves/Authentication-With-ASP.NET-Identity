@@ -11,22 +11,13 @@ using Microsoft.AspNet.Identity.Owin;
 
 namespace IdentityFromScratch.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
         // GET: Home
         public async Task<ActionResult> Index()
         {
-            var context = new ApplicationDbContext();
-            var store = new UserStore<CustomUser>(context);
-            var manager = new UserManager<CustomUser>(store);
-
-            //SignIn
-            var signInManager = new SignInManager<CustomUser, string>(manager,
-                HttpContext.GetOwinContext().Authentication);
-
-
             var email = "foobar.com";
-            var user = await manager.FindByEmailAsync(email);
+            var user = await UserManager.FindByEmailAsync(email);
             var password = "Passw0rd";
 
             if(user == null)
@@ -39,7 +30,7 @@ namespace IdentityFromScratch.Controllers
                     Lastname = "Admin"
                 };
 
-                await manager.CreateAsync(user, password);
+                await UserManager.CreateAsync(user, password);
             }
             else
             {
@@ -49,7 +40,7 @@ namespace IdentityFromScratch.Controllers
 
                 var passwordHasher = new PasswordHasher();
 
-                var result = await signInManager.PasswordSignInAsync(user.UserName, password, true, false);
+                var result = await SignInManager.PasswordSignInAsync(user.UserName, password, true, false);
 
 
                 if (result == SignInStatus.Success)

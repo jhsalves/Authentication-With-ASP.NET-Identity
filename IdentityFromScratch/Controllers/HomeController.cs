@@ -58,5 +58,22 @@ namespace IdentityFromScratch.Controllers
 
             return Content("Hello Identity");
         }
+
+        public async Task<ActionResult> Login()
+        {
+            var email = "foobar.com";
+            var user = await UserManager.FindByEmailAsync(email);
+
+            await SignInManager.SignInAsync(user, true, true);
+
+            return RedirectToAction("Index");
+        }
+
+        public ActionResult Logout()
+        {
+            HttpContext.GetOwinContext().Authentication.SignOut();
+
+            return RedirectToAction("Index");
+        }
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using IdentityFromScratch.App_Start;
 using IdentityFromScratch.Models;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
@@ -19,8 +20,24 @@ namespace IdentityFromScratch.Controllers
             var email = "foobar.com";
             var user = await UserManager.FindByEmailAsync(email);
             var password = "Passw0rd";
+            var roles = ApplicationRoleManager.Create(HttpContext.GetOwinContext());
 
-            if(user == null)
+            if(!await roles.RoleExistsAsync(SecurityRoles.Admin))
+            {
+                await roles.CreateAsync(new IdentityRole { Name = SecurityRoles.Admin });
+            }
+
+            if (!await roles.RoleExistsAsync(SecurityRoles.IT))
+            {
+                await roles.CreateAsync(new IdentityRole { Name = SecurityRoles.IT });
+            }
+
+            if (!await roles.RoleExistsAsync(SecurityRoles.Accounting))
+            {
+                await roles.CreateAsync(new IdentityRole { Name = SecurityRoles.Accounting });
+            }
+
+            if (user == null)
             {
                 user = new CustomUser
                 {
@@ -34,18 +51,8 @@ namespace IdentityFromScratch.Controllers
             }
             else
             {
-                //user.Firstname = "Super";
-                //user.Lastname = "Admin";
-                //await manager.UpdateAsync(user);
-
-                var passwordHasher = new PasswordHasher();
-
-                var result = await SignInManager.PasswordSignInAsync(user.UserName, password, true, false);
-
-
-                if (result == SignInStatus.Success)
-                {
-                    return Content($"Hello {user.Firstname} {user.Lastname}");
+                if(!await UserManager.IsInRoleAsync(user.Id, SecurityRoles.Admin)) {
+                    await UserManager.AddToRoleAsync(user.Id, SecurityRoles.Admin);
                 }
             }
 
